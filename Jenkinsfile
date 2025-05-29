@@ -32,14 +32,15 @@ stage('Lint Code') {
     steps {
         echo '🔍 Running Pylint...'
         sh '''
-            docker run --rm -v "$PWD:/app" -w /app expense-tracker-app bash -c "
+            docker run --rm expense-tracker-app bash -c "
                 pip install --quiet pylint &&
                 echo '🔍 Linting files...' &&
-                pylint /app/app | tee /app/pylint-report.txt || true
+                pylint app | tee /app/pylint-report.txt || true
             "
         '''
     }
 }
+
 
 
 
