@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     environment {
         DOCKER_IMAGE = 'expense-tracker-app'
     }
@@ -22,7 +23,7 @@ pipeline {
             steps {
                 echo '🧪 Running tests inside Docker container...'
                 sh '''
-                    docker run --rm $DOCKER_IMAGE bash -c "pytest > test-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pytest > /app/test-report.txt || true"
                 '''
             }
         }
@@ -31,10 +32,7 @@ pipeline {
             steps {
                 echo '🔍 Running pylint inside Docker...'
                 sh '''
-                    docker run --rm $DOCKER_IMAGE bash -c "
-                        pip install pylint &&
-                        pylint app/ --exit-zero > pylint-report.txt
-                    "
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install pylint && pylint app/ --exit-zero > /app/pylint-report.txt"
                 '''
             }
         }
@@ -43,10 +41,7 @@ pipeline {
             steps {
                 echo '🔒 Running Bandit inside Docker...'
                 sh '''
-                    docker run --rm $DOCKER_IMAGE bash -c "
-                        pip install bandit &&
-                        bandit -r app/ > bandit-report.txt || true
-                    "
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install bandit && bandit -r app/ > /app/bandit-report.txt || true"
                 '''
             }
         }
@@ -54,15 +49,15 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '🚀 Deployment stage (stub)'
-                // You can define docker-compose or kubectl steps here
+                // Add deployment steps here if needed
             }
         }
     }
 
-      post {
-      always {
-          echo '📦 Archiving reports...'
-          archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
-      }
-  }
+    post {
+        always {
+            echo '📦 Archiving reports...'
+            archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+        }
+    }
 }
