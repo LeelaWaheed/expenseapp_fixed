@@ -55,18 +55,17 @@ stage('Security Scan') {
 }
 
 
-
-        stage('Verify Reports') {
-            steps {
-                echo '📂 Verifying generated reports...'
-                sh '''
-                    ls -al
-                    cat test-report.txt || echo "❌ test-report.txt not found"
-                    cat pylint-report.txt || echo "❌ pylint-report.txt not found"
-                    cat bandit-report.txt || echo "❌ bandit-report.txt not found"
-                '''
-            }
-        }
+stage('Verify Reports') {
+    steps {
+        echo '📂 Verifying generated reports...'
+        sh '''
+            ls -al
+            [ -f test-report.txt ] && cat test-report.txt || echo "❌ test-report.txt not found"
+            [ -f pylint-report.txt ] && cat pylint-report.txt || echo "❌ pylint-report.txt not found"
+            [ -f bandit-report.txt ] && cat bandit-report.txt || echo "❌ bandit-report.txt not found"
+        '''
+    }
+}
 
         stage('Deploy') {
             steps {
