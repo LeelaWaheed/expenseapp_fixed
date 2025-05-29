@@ -15,23 +15,18 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                echo '🧪 Running Pytest...'
-                sh '''
-                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
-                        echo 🔍 Checking if tests folder exists...
-                        if [ -d tests ]; then
-                            echo ✅ Found tests folder
-                            pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
-                        else
-                            echo ❌ tests folder not found
-                            exit 1
-                        fi
-                    "
-                '''
-            }
-        }
+       stage('Run Tests') {
+    echo '🧪 Running Pytest inside built image...'
+    sh '''
+        docker run --rm expense-tracker-app bash -c "
+            echo 🔍 Found tests:
+            ls -al /app/tests
+            echo 🧪 Executing tests...
+            pytest /app/tests --maxfail=1 --disable-warnings -v | tee /app/test-report.txt
+        "
+    '''
+}
+
 
         stage('Lint Code') {
             steps {
