@@ -11,56 +11,56 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo '🐳 Building Docker image...'
+                sh 'docker build --no-cache -t expense-tracker-app .'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo '🧪 Running Pytest...'
                 sh '''
-                    docker build --no-cache -t expense-tracker-app .
+                    docker run --rm expense-tracker-app bash -c "
+                        ls -al /app/tests || echo '❌ tests folder not found'
+                        pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
+                    "
                 '''
             }
         }
-stage('Run Tests') {
-    steps {
-        echo '🧪 Running Pytest...'
-        sh '''
-            docker run --rm expense-tracker-app bash -c "
-                ls -al /app/tests || echo '❌ tests folder not found'
-                pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
-            "
-        '''
-    }
-}
 
-stage('Lint Code') {
-    steps {
-        echo '🔍 Running Pylint...'
-        sh '''
-            docker run --rm -v "$PWD:/app" -w /app python:3.10-slim bash -c "
-                pip install pylint &&
-                echo '🔍 Linting files...' &&
-                pylint app > pylint-report.txt
-            "
-        '''
-    }
-}
+        stage('Lint Code') {
+            steps {
+                echo '🔍 Running Pylint...'
+                sh '''
+                    docker run --rm expense-tracker-app bash -c "
+                        pip install --quiet pylint &&
+                        echo '🔍 Linting files...' &&
+                        pylint app | tee pylint-report.txt
+                    "
+                '''
+            }
+        }
 
-
-stage('Security Scan') {
-    steps {
-        echo '🔒 Running Bandit...'
-        sh '''
-            docker run --rm -v "$PWD:/app" -w /app python:3.10-slim bash -c "
-                pip install bandit &&
-                bandit -r app -f txt -o bandit-report.txt
-            "
-        '''
-    }
-}
+        stage('Security Scan') {
+            steps {
+                echo '🔒 Running Bandit...'
+                sh '''
+                    docker run --rm expense-tracker-app bash -c "
+                        pip install --quiet bandit &&
+                        bandit -r app -f txt -o bandit-report.txt
+                    "
+                '''
+            }
+        }
 
         stage('Verify Reports') {
             steps {
                 echo '📂 Verifying generated reports...'
-                sh 'ls -al'
-                sh 'cat test-report.txt || echo "❌ test-report.txt not found"'
-                sh 'cat pylint-report.txt || echo "❌ pylint-report.txt not found"'
-                sh 'cat bandit-report.txt || echo "❌ bandit-report.txt not found"'
+                sh '''
+                    ls -al
+                    cat test-report.txt || echo "❌ test-report.txt not found"
+                    cat pylint-report.txt || echo "❌ pylint-report.txt not found"
+                    cat bandit-report.txt || echo "❌ bandit-report.txt not found"
+                '''
             }
         }
 
