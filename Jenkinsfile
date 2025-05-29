@@ -28,18 +28,19 @@ stage('Run Tests') {
     }
 }
 
-
 stage('Lint Code') {
     steps {
         echo '🔍 Running Pylint...'
         sh '''
             docker run --rm -v "$PWD:/app" -w /app python:3.10-slim bash -c "
                 pip install pylint &&
+                echo '🔍 Linting files...' &&
                 pylint app > pylint-report.txt || true
             "
         '''
     }
 }
+
 
 stage('Security Scan') {
     steps {
