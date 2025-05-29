@@ -59,10 +59,10 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo '📦 Archiving reports...'
-            archiveArtifacts artifacts: '**/*-report.txt', allowEmptyArchive: true
-        }
-    }
+      post {
+      always {
+          echo '📦 Archiving reports...'
+          archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+      }
+  }
 }
