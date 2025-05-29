@@ -35,7 +35,7 @@ stage('Lint Code') {
             docker run --rm -v "$PWD:/app" -w /app python:3.10-slim bash -c "
                 pip install pylint &&
                 echo '🔍 Linting files...' &&
-                pylint app > pylint-report.txt || true
+                pylint app > pylint-report.txt
             "
         '''
     }
@@ -48,7 +48,7 @@ stage('Security Scan') {
         sh '''
             docker run --rm -v "$PWD:/app" -w /app python:3.10-slim bash -c "
                 pip install bandit &&
-                bandit -r app -f txt -o bandit-report.txt || true
+                bandit -r app -f txt -o bandit-report.txt
             "
         '''
     }
