@@ -4,9 +4,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/LeelaWaheed/expenseapp_fixed'
+                git branch: 'main', url: 'https://github.com/LeelaWaheed/expenseapp_fixed'
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
