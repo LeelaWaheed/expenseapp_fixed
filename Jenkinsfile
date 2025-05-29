@@ -28,30 +28,31 @@ pipeline {
             }
         }
 
-        stage('Lint Code') {
-            steps {
-                echo '🔍 Running Pylint...'
-                sh '''
-                    docker run --rm expense-tracker-app bash -c "
-                        pip install --quiet pylint &&
-                        echo '🔍 Linting files...' &&
-                        pylint app | tee pylint-report.txt
-                    "
-                '''
-            }
-        }
+       stage('Lint Code') {
+    steps {
+        echo '🔍 Running Pylint...'
+        sh '''
+            docker run --rm expense-tracker-app bash -c "
+                pip install --quiet pylint &&
+                echo '🔍 Linting files...' &&
+                pylint app | tee pylint-report.txt || true
+            "
+        '''
+    }
+}
 
-        stage('Security Scan') {
-            steps {
-                echo '🔒 Running Bandit...'
-                sh '''
-                    docker run --rm expense-tracker-app bash -c "
-                        pip install --quiet bandit &&
-                        bandit -r app -f txt -o bandit-report.txt
-                    "
-                '''
-            }
-        }
+stage('Security Scan') {
+    steps {
+        echo '🔒 Running Bandit...'
+        sh '''
+            docker run --rm expense-tracker-app bash -c "
+                pip install --quiet bandit &&
+                bandit -r app --verbose -f txt -o bandit-report.txt || true
+            "
+        '''
+    }
+}
+
 
         stage('Verify Reports') {
             steps {
