@@ -16,16 +16,18 @@ pipeline {
                 '''
             }
         }
+stage('Run Tests') {
+    steps {
+        echo '🧪 Running Pytest...'
+        sh '''
+            docker run --rm expense-tracker-app bash -c "
+                ls -al /app/tests || echo '❌ tests folder not found'
+                pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
+            "
+        '''
+    }
+}
 
-        stage('Run Tests') {
-            steps {
-                echo '🧪 Running Pytest...'
-                sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app \
-                      pytest tests --maxfail=1 --disable-warnings -v | tee /app/test-report.txt
-                '''
-            }
-        }
 
         stage('Lint Code') {
             steps {
