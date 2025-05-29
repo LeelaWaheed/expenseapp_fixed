@@ -16,26 +16,32 @@ pipeline {
                 '''
             }
         }
-stage('Run Tests') {
-    steps {
-        echo '🧪 Running Pytest...'
-        sh '''
-            docker run --rm expense-tracker-app bash -c "
-                ls -al /app/tests || echo '❌ tests folder not found'
-                pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
-            "
-        '''
-    }
-}
 
+        stage('Run Tests') {
+            steps {
+                echo '🧪 Running Pytest...'
+                sh '''
+                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
+                        echo 📂 Verifying tests directory:
+                        ls -R /app/tests || echo '❌ /app/tests not found'
+
+                        echo 🔍 Checking Python:
+                        which python && python --version
+
+                        echo 🧪 Running pytest:
+                        pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
+                    "
+                '''
+            }
+        }
 
         stage('Lint Code') {
             steps {
                 echo '🔍 Running Pylint...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
-                        pip install pylint &&
-                        pylint app > pylint-report.txt || true
+                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
+                        pip install pylint
+                        pylint app > pylint-report.txt || echo '❌ Pylint failed'
                     "
                 '''
             }
@@ -45,9 +51,9 @@ stage('Run Tests') {
             steps {
                 echo '🔒 Running Bandit...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
-                        pip install bandit &&
-                        bandit -r app > bandit-report.txt || true
+                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
+                        pip install bandit
+                        bandit -r app > bandit-report.txt || echo '❌ Bandit failed'
                     "
                 '''
             }
@@ -56,10 +62,16 @@ stage('Run Tests') {
         stage('Verify Reports') {
             steps {
                 echo '📂 Verifying generated reports...'
-                sh 'ls -al'
-                sh 'cat test-report.txt || echo "❌ test-report.txt not found"'
-                sh 'cat pylint-report.txt || echo "❌ pylint-report.txt not found"'
-                sh 'cat bandit-report.txt || echo "❌ bandit-report.txt not found"'
+                sh '''
+                    echo 📄 Contents of test-report.txt:
+                    cat test-report.txt || echo '❌ test-report.txt not found'
+
+                    echo 📄 Contents of pylint-report.txt:
+                    cat pylint-report.txt || echo '❌ pylint-report.txt not found'
+
+                    echo 📄 Contents of bandit-report.txt:
+                    cat bandit-report.txt || echo '❌ bandit-report.txt not found'
+                '''
             }
         }
 
