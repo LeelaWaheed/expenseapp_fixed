@@ -20,19 +20,16 @@ pipeline {
         }
 
         stage('Run Tests') {
-            steps {
-                        echo "🧪 Running Pytest..."
-            sh '''
-            docker run --rm -v ${WORKSPACE}:/app -w /app expense-tracker-app bash -c "
-                echo 📁 Listing files inside container: &&
-                ls -al /app &&
-                echo 📁 Listing test files: &&
-                ls -al /app/tests &&
-                pytest /app/tests | tee /app/test-report.txt
-            " || true
-            '''
-            }
-        }
+    echo '🧪 Running Pytest...'
+    sh '''
+        docker run --rm -v ${WORKSPACE}:/app -w /app expense-tracker-app bash -c "
+            echo 🔍 Test folder content &&
+            ls -al /app/tests &&
+            pytest /app/tests --maxfail=1 --disable-warnings -v | tee /app/test-report.txt
+        "
+    '''
+}
+
 
         stage('Lint Code') {
             steps {
