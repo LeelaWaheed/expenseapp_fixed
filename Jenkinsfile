@@ -57,7 +57,7 @@ pipeline {
     post {
         always {
             echo '📦 Archiving reports...'
-            archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**.txt', allowEmptyArchive: true
         }
     }
 }
