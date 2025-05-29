@@ -19,46 +19,58 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Debug Container Contents') {
             steps {
-                echo '🧪 Running tests inside Docker container...'
+                echo '🧰 Checking what is inside the Docker container workspace...'
+                sh 'docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE ls -al'
+                sh 'docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE ls -al app || echo "❌ app folder missing"'
+                sh 'docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE ls -al tests || echo "❌ tests folder missing"'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo '🧪 Running Pytest...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pytest | tee /app/test-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE \
+                    bash -c "pytest tests > test-report.txt || true"
                 '''
             }
         }
 
-        stage('Code Quality') {
+        stage('Lint Code') {
             steps {
-                echo '🔍 Running pylint inside Docker...'
+                echo '🔍 Running Pylint...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install pylint && pylint app/ --exit-zero | tee /app/pylint-report.txt"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE \
+                    bash -c "pip install pylint && pylint app > pylint-report.txt || true"
                 '''
             }
         }
 
         stage('Security Scan') {
             steps {
-                echo '🔒 Running Bandit inside Docker...'
+                echo '🔒 Running Bandit...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install bandit && bandit -r app/ | tee /app/bandit-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE \
+                    bash -c "pip install bandit && bandit -r app > bandit-report.txt || true"
                 '''
             }
         }
 
         stage('Verify Reports') {
             steps {
-                echo '🧐 Verifying which report files actually exist in workspace...'
-                sh 'ls -al "$WORKSPACE"'
-                sh 'cat "$WORKSPACE/test-report.txt" || echo "❌ test-report.txt not found"'
-                sh 'cat "$WORKSPACE/pylint-report.txt" || echo "❌ pylint-report.txt not found"'
-                sh 'cat "$WORKSPACE/bandit-report.txt" || echo "❌ bandit-report.txt not found"'
+                echo '📂 Verifying generated reports...'
+                sh 'ls -al $WORKSPACE'
+                sh 'cat test-report.txt || echo "❌ test-report.txt not found"'
+                sh 'cat pylint-report.txt || echo "❌ pylint-report.txt not found"'
+                sh 'cat bandit-report.txt || echo "❌ bandit-report.txt not found"'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo '🚀 Deployment stage (stub)'
+                echo '🚀 Deploying (stub)...'
             }
         }
     }
@@ -66,7 +78,7 @@ pipeline {
     post {
         always {
             echo '📦 Archiving reports...'
-            archiveArtifacts artifacts: '**/*.txt', allowEmptyArchive: true
+            archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
         }
     }
 }
