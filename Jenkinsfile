@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git git 'https://github.com/LeelaWaheed/expenseapp_fixed'
+                git 'https://github.com/LeelaWaheed/expenseapp_fixed'
             }
         }
 
