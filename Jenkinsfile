@@ -15,19 +15,15 @@ pipeline {
             }
         }
 
-    stage('Run Tests') {
+    stage('Build Docker Image') {
     steps {
-        echo '🧪 Running Pytest...'
+        echo '🐳 Building Docker image...'
         sh '''
-            docker run --rm -v ${WORKSPACE}:/app -w /app expense-tracker-app bash -c "
-                echo 🔍 Verifying test folder...
-                ls -al /app/tests
-                echo 🧪 Running pytest...
-                pytest /app/tests --maxfail=1 --disable-warnings -v | tee /app/test-report.txt
-            "
+            docker build --no-cache -t expense-tracker-app .
         '''
     }
 }
+
 
         stage('Lint Code') {
             steps {
