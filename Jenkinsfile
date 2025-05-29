@@ -34,8 +34,8 @@ stage('Lint Code') {
         echo '🔍 Running Pylint...'
         sh '''
             docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
-                pip install --no-cache-dir pylint &&
-                pylint app > pylint-report.txt || echo '⚠️ Pylint warnings or errors'
+                pip install pylint &&
+                pylint app > /app/pylint-report.txt || true
             "
         '''
     }
@@ -47,12 +47,13 @@ stage('Security Scan') {
         echo '🔒 Running Bandit...'
         sh '''
             docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
-                pip install --no-cache-dir bandit &&
-                bandit -r app -f txt -o bandit-report.txt || echo '⚠️ Bandit warnings or issues'
+                pip install bandit &&
+                bandit -r app -f txt -o /app/bandit-report.txt || true
             "
         '''
     }
 }
+
 
 
 
