@@ -59,7 +59,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '🚀 Deployment stage (stub)'
-                // Add deployment logic here if needed
             }
         }
     }
