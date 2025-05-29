@@ -7,9 +7,12 @@ WORKDIR /app
 # Copy everything into the container
 COPY . .
 # Optional: If above line doesn't include tests/, use these explicitly
- COPY app/ app/
- COPY tests/ tests/
- COPY requirements.txt .
+ #COPY app/ app/
+ #COPY tests/ tests/
+ #COPY requirements.txt .
+# Ensure the database file is included
+RUN mkdir -p /app/instance
+COPY instance/expenses.db /app/instance/expenses.db
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
