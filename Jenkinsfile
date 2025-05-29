@@ -43,17 +43,18 @@ stage('Run Tests') {
 }
 
 
-        stage('Security Scan') {
-            steps {
-                echo '🔒 Running Bandit...'
-                sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
-                        pip install bandit &&
-                        bandit -r app > bandit-report.txt || true
-                    "
-                '''
-            }
-        }
+       stage('Security Scan') {
+    steps {
+        echo '🔒 Running Bandit...'
+        sh '''
+            docker run --rm -v "$WORKSPACE:/app" -w /app python:3.10-slim sh -c "
+                pip install --no-cache-dir bandit &&
+                bandit -r app -f txt -o bandit-report.txt || echo '⚠️ Bandit found issues or failed'
+            "
+        '''
+    }
+}
+
 
         stage('Verify Reports') {
             steps {
