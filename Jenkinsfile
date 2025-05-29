@@ -20,26 +20,19 @@ stage('Run Tests') {
     steps {
         echo '🧪 Running Pytest...'
         sh '''
-            docker run --rm \
-              -v $(pwd):/app \
-              -w /app \
-              expense-tracker-app bash -c "
-                  pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
-              "
+            docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt"
         '''
     }
 }
 
 
 
-       stage('Lint Code') {
+
+      stage('Lint Code') {
     steps {
         echo '🔍 Running Pylint...'
         sh '''
-            docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
-                pip install pylint &&
-                pylint app > pylint-report.txt || true
-            "
+            docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "pip install pylint && pylint app > pylint-report.txt || true"
         '''
     }
 }
@@ -48,13 +41,11 @@ stage('Security Scan') {
     steps {
         echo '🔒 Running Bandit...'
         sh '''
-            docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
-                pip install bandit &&
-                bandit -r app > bandit-report.txt || true
-            "
+            docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "pip install bandit && bandit -r app > bandit-report.txt || true"
         '''
     }
 }
+
 
 
         stage('Verify Reports') {
