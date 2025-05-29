@@ -45,7 +45,7 @@ stage('Security Scan') {
     steps {
         echo '🔒 Running Bandit...'
         sh '''
-            docker run --rm -v "$PWD:/app" -w /app expense-tracker-app bash -c "
+            docker run --rm -v "/var/jenkins_home/workspace:/app" -w /app expense-tracker-app bash -c "
                 ls -al /app &&
                 find /app -name '*.py' &&
                 pip install --quiet bandit &&
