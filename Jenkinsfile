@@ -21,14 +21,15 @@ pipeline {
 
     stage('Test') {
       steps {
-        echo '🧪 Installing dependencies and running tests inside Docker...'
-        sh '''
-          docker run --rm -v $PWD:/app -w /app python:3.11 bash -c "
-            pip install -r requirements.txt &&
-            pip install pytest pytest-cov &&
-            pytest --cov=app --cov-report=term --cov-report=html:htmlcov > coverage-report.txt
-          "
-        '''
+        echo '🧪 Verifying requirements.txt inside container...'
+    sh '''
+      docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11 bash -c "
+        ls -l /app &&
+        pip install -r requirements.txt &&
+        pip install pytest pytest-cov &&
+        pytest --cov=app --cov-report=term --cov-report=html:htmlcov > coverage-report.txt
+      "
+    '''
       }
     }
 
