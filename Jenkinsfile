@@ -54,6 +54,15 @@ stage('Security Scan') {
             }
         }
     }
+  stage('Verify Reports') {
+    steps {
+        echo '🧐 Verifying which report files actually exist in workspace...'
+        sh 'ls -al $WORKSPACE'
+        sh 'cat $WORKSPACE/test-report.txt || echo "❌ test-report.txt not found"'
+        sh 'cat $WORKSPACE/pylint-report.txt || echo "❌ pylint-report.txt not found"'
+        sh 'cat $WORKSPACE/bandit-report.txt || echo "❌ bandit-report.txt not found"'
+    }
+}
 
     post {
         always {
