@@ -29,31 +29,31 @@ stage('Run Tests') {
 }
 
 
-        stage('Lint Code') {
+       stage('Lint Code') {
     steps {
         echo '🔍 Running Pylint...'
         sh '''
             docker run --rm -v "$WORKSPACE:/app" -w /app python:3.10-slim sh -c "
                 pip install --no-cache-dir pylint &&
-                which pylint &&
-                pylint app || echo '⚠️ Pylint failed'
+                pylint /app/app > pylint-report.txt || echo '⚠️ Pylint warnings or errors'
             "
         '''
     }
 }
 
 
-       stage('Security Scan') {
+stage('Security Scan') {
     steps {
         echo '🔒 Running Bandit...'
         sh '''
             docker run --rm -v "$WORKSPACE:/app" -w /app python:3.10-slim sh -c "
                 pip install --no-cache-dir bandit &&
-                bandit -r app -f txt -o bandit-report.txt || echo '⚠️ Bandit found issues or failed'
+                bandit -r app -f txt -o /app/bandit-report.txt || echo '⚠️ Bandit warnings or issues'
             "
         '''
     }
 }
+
 
 
         stage('Verify Reports') {
