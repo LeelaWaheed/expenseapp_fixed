@@ -20,10 +20,12 @@ stage('Run Tests') {
     steps {
         echo '🧪 Running Pytest...'
         sh '''
-            docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt"
+            docker run --rm -v $(pwd):/app -w /app expense-tracker-app \
+                python -m pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
         '''
     }
 }
+
 
 
 
