@@ -36,12 +36,14 @@ pipeline {
     stage('Code Quality') {
       steps {
         echo '🔍 Running pylint inside Docker...'
-        sh '''
-          docker run --rm -v $PWD:/app -w /app python:3.11 bash -c "
-            pip install pylint &&
-            pylint app/ --exit-zero > pylint-report.txt
-          "
-        '''
+       sh '''
+        docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11 bash -c "
+          ls -l /app &&
+          pip install -r requirements.txt &&
+          pip install pytest pytest-cov &&
+          pytest --cov=app --cov-report=term --cov-report=html:htmlcov > coverage-report.txt
+        "
+      '''
       }
     }
 
