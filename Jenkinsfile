@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     environment {
         DOCKER_IMAGE = 'expense-tracker-app'
     }
@@ -19,21 +18,13 @@ pipeline {
             }
         }
 
-        stage('Debug Container Contents') {
-            steps {
-                echo '🧰 Checking what is inside the Docker container workspace...'
-                sh 'docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE ls -al'
-                sh 'docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE ls -al app || echo "❌ app folder missing"'
-                sh 'docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE ls -al tests || echo "❌ tests folder missing"'
-            }
-        }
-
         stage('Run Tests') {
             steps {
                 echo '🧪 Running Pytest...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE \
-                    bash -c "pytest tests > test-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "
+                        pytest tests > /app/test-report.txt || true
+                    "
                 '''
             }
         }
@@ -42,8 +33,10 @@ pipeline {
             steps {
                 echo '🔍 Running Pylint...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE \
-                    bash -c "pip install pylint && pylint app > pylint-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "
+                        pip install pylint &&
+                        pylint app > /app/pylint-report.txt || true
+                    "
                 '''
             }
         }
@@ -52,8 +45,10 @@ pipeline {
             steps {
                 echo '🔒 Running Bandit...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE \
-                    bash -c "pip install bandit && bandit -r app > bandit-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "
+                        pip install bandit &&
+                        bandit -r app > /app/bandit-report.txt || true
+                    "
                 '''
             }
         }
@@ -78,7 +73,7 @@ pipeline {
     post {
         always {
             echo '📦 Archiving reports...'
-            archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/*.txt', allowEmptyArchive: true
         }
     }
 }
