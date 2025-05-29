@@ -1,19 +1,19 @@
+# Use an official lightweight Python image
 FROM python:3.10-slim
 
+# Set working directory
 WORKDIR /app
 
+# Copy everything into the container
 COPY . .
+# Optional: If above line doesn't include tests/, use these explicitly
+ COPY app/ app/
+ COPY tests/ tests/
+ COPY requirements.txt .
 
-RUN mkdir -p /app/instance
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN apt-get update && apt-get install -y \
-    bash \
-    build-essential \
- && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install pylint bandit
-
-EXPOSE 5000
-
+# Command to run the app (optional)
 CMD ["python", "app.py"]
+
