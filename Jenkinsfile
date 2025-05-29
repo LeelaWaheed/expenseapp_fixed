@@ -19,12 +19,13 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+       tage('Run Tests') {
     echo '🧪 Running Pytest...'
     sh '''
         docker run --rm -v ${WORKSPACE}:/app -w /app expense-tracker-app bash -c "
-            echo 🔍 Test folder content &&
-            ls -al /app/tests &&
+            echo 🔍 Verifying test folder...
+            ls -al /app/tests
+            echo 🧪 Running pytest...
             pytest /app/tests --maxfail=1 --disable-warnings -v | tee /app/test-report.txt
         "
     '''
