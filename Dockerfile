@@ -1,17 +1,19 @@
-# Use a minimal Python base image
 FROM python:3.10-slim
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy everything from your project into the container
 COPY . .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN mkdir -p /app/instance
 
-# Expose the Flask app's default port
+RUN apt-get update && apt-get install -y \
+    bash \
+    build-essential \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install pylint bandit
+
 EXPOSE 5000
 
-# Run the Flask app
 CMD ["python", "app.py"]
