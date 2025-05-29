@@ -8,24 +8,31 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                echo '🐳 Building Docker image...'
+                sh '''
+                    docker build --no-cache -t expense-tracker-app .
+                '''
+            }
+        }
 
-
-    stage('Build Docker Image') {
-    steps {
-        echo '🐳 Building Docker image...'
-        sh '''
-            docker build --no-cache -t expense-tracker-app .
-        '''
-    }
-}
-
+        stage('Run Tests') {
+            steps {
+                echo '🧪 Running Pytest...'
+                sh '''
+                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app \
+                      pytest tests --maxfail=1 --disable-warnings -v | tee /app/test-report.txt
+                '''
+            }
+        }
 
         stage('Lint Code') {
             steps {
                 echo '🔍 Running Pylint...'
                 sh '''
-                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
-                        pip install pylint
+                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
+                        pip install pylint &&
                         pylint app > pylint-report.txt || true
                     "
                 '''
@@ -36,8 +43,8 @@ pipeline {
             steps {
                 echo '🔒 Running Bandit...'
                 sh '''
-                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
-                        pip install bandit
+                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
+                        pip install bandit &&
                         bandit -r app > bandit-report.txt || true
                     "
                 '''
