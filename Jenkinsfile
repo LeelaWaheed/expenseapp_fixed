@@ -1,8 +1,7 @@
 pipeline {
     agent any
-
     environment {
-        IMAGE_NAME = 'expense-tracker-app'
+        DOCKER_IMAGE = 'expense-tracker-app'
     }
 
     stages {
@@ -15,57 +14,47 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo '🐳 Building Docker image...'
-                sh 'docker build -t $IMAGE_NAME .'
+                sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
 
-        stage('Debug Workspace') {
+        stage('Test') {
             steps {
-                echo '📂 Listing Jenkins workspace contents before Docker runs...'
-                sh 'ls -al $WORKSPACE'
+                echo '🧪 Running tests inside Docker container...'
+                sh '''
+                    docker run --rm $DOCKER_IMAGE bash -c "pytest > test-report.txt || true"
+                '''
             }
         }
-
-    stage('Test') {
-    steps {
-        echo '🧪 Checking mounted files in container...'
-        sh '''
-            echo "📁 Host workspace: ${WORKSPACE}"
-            docker run --rm -v "${WORKSPACE}:/app" -w /app python:3.11 bash -c "ls -al /app"
-        '''
-    }
-}
-
-
-
 
         stage('Code Quality') {
             steps {
                 echo '🔍 Running pylint inside Docker...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app python:3.11 bash -c '
-                        pip install -r requirements.txt &&
+                    docker run --rm $DOCKER_IMAGE bash -c "
                         pip install pylint &&
                         pylint app/ --exit-zero > pylint-report.txt
-                    '
+                    "
                 '''
             }
         }
 
         stage('Security Scan') {
-            when {
-                expression { fileExists('app/') }
-            }
             steps {
-                echo '🛡️ Security scanning... (placeholder)'
-                // Add Bandit or other scanners here
+                echo '🔒 Running Bandit inside Docker...'
+                sh '''
+                    docker run --rm $DOCKER_IMAGE bash -c "
+                        pip install bandit &&
+                        bandit -r app/ > bandit-report.txt || true
+                    "
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying container... (placeholder)'
-                // Add actual deploy commands here
+                echo '🚀 Deployment stage (stub)'
+                // You can define docker-compose or kubectl steps here
             }
         }
     }
@@ -73,7 +62,7 @@ pipeline {
     post {
         always {
             echo '📦 Archiving reports...'
-            archiveArtifacts artifacts: '**/*.txt', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/*-report.txt', allowEmptyArchive: true
         }
     }
 }
