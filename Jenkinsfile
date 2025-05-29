@@ -33,31 +33,25 @@ stage('Lint Code') {
     steps {
         echo '🔍 Running Pylint...'
         sh '''
-            docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
+            docker run --rm -v "$PWD:/app" -w /app python:3.10-slim bash -c "
                 pip install pylint &&
-                pylint app > /app/pylint-report.txt || true
+                pylint app > pylint-report.txt || true
             "
         '''
     }
 }
-
 
 stage('Security Scan') {
     steps {
         echo '🔒 Running Bandit...'
         sh '''
-            docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
+            docker run --rm -v "$PWD:/app" -w /app python:3.10-slim bash -c "
                 pip install bandit &&
-                bandit -r app -f txt -o /app/bandit-report.txt || true
+                bandit -r app -f txt -o bandit-report.txt || true
             "
         '''
     }
 }
-
-
-
-
-
 
         stage('Verify Reports') {
             steps {
