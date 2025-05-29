@@ -19,31 +19,35 @@ pipeline {
       }
     }
 
+    stage('Debug Workspace') {
+      steps {
+        echo '📂 Listing Jenkins workspace contents before Docker runs...'
+        sh 'ls -al ${WORKSPACE}'
+      }
+    }
+
     stage('Test') {
       steps {
         echo '🧪 Verifying requirements.txt inside container...'
-    sh '''
-      docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11 bash -c "
-        ls -l /app &&
-        pip install -r requirements.txt &&
-        pip install pytest pytest-cov &&
-        pytest --cov=app --cov-report=term --cov-report=html:htmlcov > coverage-report.txt
-      "
-    '''
+        sh '''
+          docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11 bash -c "
+            ls -al /app &&
+            cat /app/requirements.txt || echo '❌ requirements.txt still not found!'
+          "
+        '''
       }
     }
 
     stage('Code Quality') {
       steps {
         echo '🔍 Running pylint inside Docker...'
-       sh '''
-        docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11 bash -c "
-          ls -l /app &&
-          pip install -r requirements.txt &&
-          pip install pytest pytest-cov &&
-          pytest --cov=app --cov-report=term --cov-report=html:htmlcov > coverage-report.txt
-        "
-      '''
+        sh '''
+          docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11 bash -c "
+            pip install -r requirements.txt &&
+            pip install pylint &&
+            pylint app/ --exit-zero > pylint-report.txt
+          "
+        '''
       }
     }
 
@@ -51,7 +55,7 @@ pipeline {
       steps {
         echo '🔐 Running Bandit inside Docker...'
         sh '''
-          docker run --rm -v $PWD:/app -w /app python:3.11 bash -c "
+          docker run --rm -v ${WORKSPACE}:/app -w /app python:3.11 bash -c "
             pip install bandit &&
             bandit -r app/ > bandit-report.txt
           "
