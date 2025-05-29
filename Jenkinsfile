@@ -27,16 +27,14 @@ pipeline {
         }
 
         stage('Test') {
-            steps {
-                echo '🧪 Verifying requirements.txt inside container...'
-                sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app python:3.11 bash -c '
-                        ls -al /app &&
-                        cat requirements.txt || echo "❌ requirements.txt still not found!"
-                    '
-                '''
-            }
+        steps {
+            echo '🧪 Verifying requirements.txt inside container...'
+            sh """
+                docker run --rm -v "$WORKSPACE:/app" -w /app python:3.11 bash -c \\
+                "ls -al /app && cat requirements.txt || echo '❌ requirements.txt still not found!'"
+            """
         }
+    }
 
         stage('Code Quality') {
             steps {
