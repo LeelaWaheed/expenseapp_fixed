@@ -23,7 +23,7 @@ pipeline {
             steps {
                 echo '🧪 Running tests inside Docker container...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pytest > /app/test-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pytest | tee /app/test-report.txt || true"
                 '''
             }
         }
@@ -32,7 +32,7 @@ pipeline {
             steps {
                 echo '🔍 Running pylint inside Docker...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install pylint && pylint app/ --exit-zero > /app/pylint-report.txt"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install pylint && pylint app/ --exit-zero | tee /app/pylint-report.txt"
                 '''
             }
         }
@@ -41,7 +41,7 @@ pipeline {
             steps {
                 echo '🔒 Running Bandit inside Docker...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install bandit && bandit -r app/ > /app/bandit-report.txt || true"
+                    docker run --rm -v "$WORKSPACE:/app" -w /app $DOCKER_IMAGE bash -c "pip install bandit && bandit -r app/ | tee /app/bandit-report.txt || true"
                 '''
             }
         }
