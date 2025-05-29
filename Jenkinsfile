@@ -41,9 +41,6 @@ stage('Lint Code') {
     }
 }
 
-
-
-
 stage('Security Scan') {
     steps {
         echo '🔒 Running Bandit...'
