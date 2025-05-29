@@ -28,11 +28,11 @@ pipeline {
             }
         }
 
-  stage('Lint Code') {
+stage('Lint Code') {
     steps {
         echo '🔍 Running Pylint...'
         sh '''
-            docker run --rm -v "$PWD:/app" expense-tracker-app bash -c "
+            docker run --rm -v "$PWD:/app" -w /app expense-tracker-app bash -c "
                 pip install --quiet pylint &&
                 echo '🔍 Linting files...' &&
                 pylint app | tee pylint-report.txt || true
@@ -47,9 +47,9 @@ stage('Security Scan') {
     steps {
         echo '🔒 Running Bandit...'
         sh '''
-            docker run --rm -v "$PWD:/app" expense-tracker-app bash -c "
+            docker run --rm -v "$PWD:/app" -w /app expense-tracker-app bash -c "
                 pip install --quiet bandit &&
-                bandit -r app --verbose -f txt -o bandit-report.txt || true
+                bandit -r app --verbose -f txt -o /app/bandit-report.txt || true
             "
         '''
     }
