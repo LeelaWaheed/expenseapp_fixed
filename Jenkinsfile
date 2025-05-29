@@ -49,12 +49,14 @@ stage('Security Scan') {
         echo '🔒 Running Bandit...'
         sh '''
             docker run --rm -v "$PWD:/app" -w /app expense-tracker-app bash -c "
+                ls -al /app &&
                 pip install --quiet bandit &&
-                bandit -r app --verbose || true
+                bandit -r /app/app --verbose || true
             "
         '''
     }
 }
+
 
 
 stage('Verify Reports') {
