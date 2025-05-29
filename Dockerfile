@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copy everything into the container
 COPY . .
+COPY app /app/app
 # Optional: If above line doesn't include tests/, use these explicitly
  #COPY app/ app/
  #COPY tests/ tests/
