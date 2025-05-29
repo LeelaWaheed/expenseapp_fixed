@@ -17,7 +17,7 @@ COPY instance/expenses.db /app/instance/expenses.db
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
+RUN pip install --no-cache-dir bandit
 # Command to run the app (optional)
 CMD ["python", "app.py"]
 
