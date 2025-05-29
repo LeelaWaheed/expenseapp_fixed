@@ -1,21 +1,17 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "expense-tracker-app"
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git 'https://github.com/LeelaWaheed/expense-track-app'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 echo '🐳 Building Docker image...'
-                sh 'docker build -t $IMAGE_NAME .'
+                sh 'docker build -t expense-tracker-app .'
             }
         }
 
@@ -23,11 +19,15 @@ pipeline {
             steps {
                 echo '🧪 Running Pytest...'
                 sh '''
-                    docker run --rm -v ${WORKSPACE}:/app -w /app $IMAGE_NAME bash -c "
-                        echo 🔍 Verifying test folder...
-                        ls -al /app/tests
-                        echo 🧪 Running pytest...
-                        pytest /app/tests --maxfail=1 --disable-warnings -v | tee /app/test-report.txt
+                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
+                        echo 🔍 Checking if tests folder exists...
+                        if [ -d tests ]; then
+                            echo ✅ Found tests folder
+                            pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
+                        else
+                            echo ❌ tests folder not found
+                            exit 1
+                        fi
                     "
                 '''
             }
@@ -37,9 +37,9 @@ pipeline {
             steps {
                 echo '🔍 Running Pylint...'
                 sh '''
-                    docker run --rm -v ${WORKSPACE}:/app -w /app $IMAGE_NAME bash -c "
-                        pip install pylint &&
-                        pylint app | tee /app/pylint-report.txt
+                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
+                        pip install pylint
+                        pylint app > pylint-report.txt || true
                     "
                 '''
             }
@@ -49,9 +49,9 @@ pipeline {
             steps {
                 echo '🔒 Running Bandit...'
                 sh '''
-                    docker run --rm -v ${WORKSPACE}:/app -w /app $IMAGE_NAME bash -c "
-                        pip install bandit &&
-                        bandit -r app | tee /app/bandit-report.txt
+                    docker run --rm -v $(pwd):/app -w /app expense-tracker-app bash -c "
+                        pip install bandit
+                        bandit -r app > bandit-report.txt || true
                     "
                 '''
             }
@@ -60,17 +60,16 @@ pipeline {
         stage('Verify Reports') {
             steps {
                 echo '📂 Verifying generated reports...'
-                sh 'ls -al $WORKSPACE'
-                sh 'cat $WORKSPACE/test-report.txt || echo ❌ test-report.txt not found'
-                sh 'cat $WORKSPACE/pylint-report.txt || echo ❌ pylint-report.txt not found'
-                sh 'cat $WORKSPACE/bandit-report.txt || echo ❌ bandit-report.txt not found'
+                sh 'ls -al'
+                sh 'cat test-report.txt || echo "❌ test-report.txt not found"'
+                sh 'cat pylint-report.txt || echo "❌ pylint-report.txt not found"'
+                sh 'cat bandit-report.txt || echo "❌ bandit-report.txt not found"'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying (stub)...'
-                // Placeholder for real deployment step
             }
         }
     }
