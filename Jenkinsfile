@@ -48,7 +48,7 @@ stage('Security Scan') {
 
 
 
-        stage('Deploy') {
+      stage('Deploy') {
     when {
         always() // This forces deployment to execute even if previous stages failed
     }
