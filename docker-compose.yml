@@ -9,4 +9,5 @@ services:
       - .:/app
     environment:
       - FLASK_ENV=development
-    command: python app.py
+    command: python /app/app.py
+

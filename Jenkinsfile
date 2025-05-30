@@ -1,121 +1,54 @@
 pipeline {
     agent any
-
- stages {
-        stage('Checkout') {
-            steps {
-                echo '📥 Cloning Repository...'
-                checkout scm
-            }
-        }
-         stage('Verify Files in Workspace') {
-            steps {
-                echo '🔍 Checking cloned files...'
-                sh 'ls -l /var/jenkins_home/workspace/hdtask/'
-            }
-        }
-
-stage('Cleanup Old Containers') {
-            steps {
-                echo '🗑 Removing existing Flask container...'
-                sh '''
-                    docker stop expense-tracker || true
-                    docker rm expense-tracker || true
-                    docker system prune -af
-                '''
-            }
-        }
- stage('Recreate Docker Network') {
-            steps {
-                echo '🌐 Removing and recreating Docker network...'
-                sh 'docker network rm hdtask_default || true'
-            }
-        }
- stage('Build & Start Services') {
-            steps {
-                echo '🐳 Building and starting Flask app...'
-                sh 'docker-compose up -d --build'
-            }
-        }
-
- stage('Verify Flask is Running') {
-            steps {
-                echo '🔍 Checking Flask app...'
-                sh '''
-                    sleep 5  # Allow time for startup
-                    curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/
-                '''
-            }
-        }
-
-
-
-
-        stage('Run Tests') {
-            steps {
-                echo '🧪 Running Pytest...'
-                sh '''
-                    docker run --rm expense-tracker-app bash -c "
-                        ls -al /app/tests || echo '❌ tests folder not found'
-                        pytest tests --maxfail=1 --disable-warnings -v | tee test-report.txt
-                    "
-                '''
-            }
-        }
-
-stage('Lint Code') {
-    steps {
-        echo '🔍 Running Pylint...'
-        sh '''
-            docker run --rm expense-tracker-app bash -c "
-                pip install --quiet pylint &&
-                echo '🔍 Linting files...' &&
-                pylint app | tee /app/pylint-report.txt || true
-            "
-        '''
+    
+    environment {
+        DOCKER_REPO = 'myrepo/expenseapp'  // Replace with your actual Docker repository
     }
-}
-
-stage('Security Scan') {
-    steps {
-        echo '🔒 Running Bandit...'
-        sh '''
-            docker run --rm -v "/var/jenkins_home/workspace/hdtask:/workspace" -w /workspace expense-tracker-app bash -c "
-                mkdir -p /app &&
-                cp -r /workspace/* /app/ &&
-                ls -al /app &&
-                find /app -name '*.py' &&
-                pip install --quiet bandit &&
-                bandit /app/**/*.py --verbose || true
-            "
-        '''
-    }
-}
-
-
-stage('Verify Reports') {
-    steps {
-        echo '📂 Verifying generated reports...'
-        sh '''
-            ls -al
-            [ -f test-report.txt ] && cat test-report.txt || echo "❌ test-report.txt not found"
-            [ -f pylint-report.txt ] && cat pylint-report.txt || echo "❌ pylint-report.txt not found"
-            [ -f bandit-report.txt ] && cat bandit-report.txt || echo "❌ bandit-report.txt not found"
-        '''
-    }
-}
-
+    
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building application...'
+                sh 'docker build -t expenseapp .'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                sh 'pytest'  // Ensure you have pytest installed
+            }
+        }
+        
+        stage('Code Quality') {
+            steps {
+                echo 'Analyzing code quality...'
+                sh 'pylint --disable=all --enable=unused-import,wrong-import-position $(git ls-files "*.py")'
+            }
+        }
+        
+        stage('Security') {
+            steps {
+                echo 'Running security scans...'
+                sh 'bandit -r .'  // Bandit for Python security checks
+            }
+        }
+        
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying (stub)...'
+                echo 'Deploying application...'
+                
+                echo 'Tagging and pushing Docker image...'
+                sh 'docker tag expenseapp $DOCKER_REPO:latest'
+                sh 'docker push $DOCKER_REPO:latest'  // Push to your Docker repository
+                
+                echo 'Stopping old container (if exists)...'
+                sh 'docker stop expenseapp || true'
+                sh 'docker rm expenseapp || true'
+                
+                echo 'Running new container...'
+                sh 'docker run -d --name expenseapp -p 5000:5000 $DOCKER_REPO:latest'
             }
-        }
-    }
-
-    post {
-        always {
-            echo '📦 Archiving reports...'
-            archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
         }
     }
 }
