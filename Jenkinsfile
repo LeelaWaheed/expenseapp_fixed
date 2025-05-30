@@ -8,6 +8,13 @@ pipeline {
                 checkout scm
             }
         }
+         stage('Verify Files in Workspace') {
+            steps {
+                echo '🔍 Checking cloned files...'
+                sh 'ls -l /var/jenkins_home/workspace/hdtask/'
+            }
+        }
+
 stage('Cleanup Old Containers') {
             steps {
                 echo '🗑 Removing existing Flask container...'
