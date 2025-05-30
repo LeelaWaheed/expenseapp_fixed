@@ -20,13 +20,17 @@ pipeline {
             }
         }
 
- stage('Code Quality') {
-    steps {
-        echo 'Analyzing code quality with Pylint...'
-        sh 'docker run --rm expenseapp python -m pylint --exit-zero app.py > pylint_report.txt'
-        sh 'cat pylint_report.txt'
-    }
-}
+stage('Lint Code') {
+            steps {
+                echo '🔍 Running Pylint...'
+                sh '''
+                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
+                        pip install pylint &&
+                        pylint app > pylint-report.txt || true
+                    "
+                '''
+            }
+        }
 
 
        stage('Security') {
