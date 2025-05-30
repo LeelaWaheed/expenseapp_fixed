@@ -8,23 +8,39 @@ pipeline {
                 checkout scm
             }
         }
-stage('Build & Start Services') {
-    steps {
-        echo '🐳 Building and starting Flask app...'
-        sh '''
-            docker-compose up -d --build
-        '''
-    }
-}
-stage('Verify Flask is Running') {
-    steps {
-        echo '🔍 Checking Flask app...'
-        sh '''
-            sleep 5  # Allow some time for startup
-            curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/
-        '''
-    }
-}
+stage('Cleanup Old Containers') {
+            steps {
+                echo '🗑 Removing existing Flask container...'
+                sh '''
+                    docker stop expense-tracker || true
+                    docker rm expense-tracker || true
+                    docker system prune -af
+                '''
+            }
+        }
+ stage('Recreate Docker Network') {
+            steps {
+                echo '🌐 Removing and recreating Docker network...'
+                sh 'docker network rm hdtask_default || true'
+            }
+        }
+ stage('Build & Start Services') {
+            steps {
+                echo '🐳 Building and starting Flask app...'
+                sh 'docker-compose up -d --build'
+            }
+        }
+
+ stage('Verify Flask is Running') {
+            steps {
+                echo '🔍 Checking Flask app...'
+                sh '''
+                    sleep 5  # Allow time for startup
+                    curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/
+                '''
+            }
+        }
+
 
 
 
