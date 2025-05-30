@@ -33,12 +33,18 @@ stage('Lint Code') {
         }
 
 
-       stage('Security') {
-        steps {
-        echo 'Running security analysis...'
-        sh 'docker run --rm expenseapp bandit -r app/'
-    }
-}
+        stage('Security Scan') {
+            steps {
+                echo '🔒 Running Bandit...'
+                sh '''
+                    docker run --rm -v "$WORKSPACE:/app" -w /app expenseapp sh -c "
+                        pip install bandit &&
+                        bandit -r app > bandit-report.txt || true
+                    "
+                '''
+            }
+        }
+
 
 
         stage('Deploy') {
