@@ -46,8 +46,26 @@ stage('Security Scan') {
     }
 }
 
-
-
+ stage('SonarCloud Analysis') {
+        steps {
+            echo '🔎 Running SonarCloud Analysis...'
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                sh '''
+                    docker run --rm \
+                      -v "$(pwd)":/usr/src \
+                      -w /usr/src \
+                      sonarsource/sonar-scanner-cli \
+                      sonar-scanner \
+                      -Dsonar.projectKey=expenseapp_fixed \
+                      -Dsonar.organization=leelawaheed \
+                      -Dsonar.sources=. \
+                      -Dsonar.host.url=https://sonarcloud.io \
+                      -Dsonar.login=$SONAR_TOKEN
+                '''
+            }
+        }
+    }
+/*
  stage('Deploy') {
     steps {
         echo '🚀 Tagging and pushing Docker image...'
@@ -63,7 +81,7 @@ stage('Security Scan') {
 
         sh 'docker push leelawaheed/expenseapp_fixed:latest'
     }
-}
+}*/
 
     }
 }
