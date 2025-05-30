@@ -4,9 +4,11 @@ FROM python:3.10-slim
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy everything into the container
+# Copy everything first
 COPY . /app
 
+# Explicitly copy app.py to ensure it's inside /app/
+COPY app.py /app/app.py
 
 # Ensure instance directory exists
 RUN mkdir -p /app/instance
