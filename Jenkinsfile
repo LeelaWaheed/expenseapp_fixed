@@ -26,7 +26,7 @@ stage('Lint Code') {
         sh '''
             docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
                 pip install pylint &&
-                pylint app --output-format=text > pylint-report.txt || true
+                pylint app --output-format=text | tee pylint-report.txt || true
             "
         '''
         sh 'cat pylint-report.txt' // Displays the linting report in Jenkins console
