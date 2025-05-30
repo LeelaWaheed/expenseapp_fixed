@@ -48,10 +48,7 @@ stage('Security Scan') {
 
 
 
-      stage('Deploy') {
-    when {
-        always() // This forces deployment to execute even if previous stages failed
-    }
+ stage('Deploy') {
     steps {
         echo 'Tagging and pushing Docker image to repository...'
         sh 'docker tag expenseapp $DOCKER_REPO:latest'
@@ -66,6 +63,11 @@ stage('Security Scan') {
 
         echo 'Checking container logs for errors...'
         sh 'docker logs expenseapp'
+    }
+    post {
+        always {
+            echo 'Deployment stage completed regardless of previous failures.'
+        }
     }
 }
     }
