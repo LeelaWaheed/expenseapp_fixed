@@ -12,7 +12,7 @@ stage('Build & Start Services') {
     steps {
         echo '🐳 Building and starting Flask app...'
         sh '''
-            "/c/Program Files/Docker/Docker/resources/bin/docker-compose.exe" up -d --build
+            docker-compose up -d --build
         '''
     }
 }
