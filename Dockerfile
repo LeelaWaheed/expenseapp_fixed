@@ -24,6 +24,7 @@ COPY instance/expenses.db /app/instance/expenses.db
 
 # Install security tools (e.g., Bandit for security scans)
 RUN pip install --no-cache-dir bandit
+RUN pip install pylint
 
 # Expose Flask port
 EXPOSE 5000
