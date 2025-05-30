@@ -6,14 +6,14 @@ WORKDIR /app
 
 # Copy everything into the container
 COPY . .
-COPY app /app
 
+# Ensure instance directory exists
 RUN mkdir -p /app/instance
 COPY instance/expenses.db /app/instance/expenses.db
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir bandit
-# Command to run the app (optional)
-CMD ["python", "app.py"]
 
+# Run Flask application
+CMD ["python", "app/app.py"]
