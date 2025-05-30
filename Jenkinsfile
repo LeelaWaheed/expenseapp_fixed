@@ -42,7 +42,7 @@ stage('Security Scan') {
                 bandit -r app -f txt | tee bandit-report.txt || true
             "
         '''
-        sh 'cat bandit-report.txt' // Displays the report in Jenkins console
+        
     }
 }
 
