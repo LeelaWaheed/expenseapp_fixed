@@ -21,16 +21,11 @@ pipeline {
         }
 
         stage('Code Quality') {
-            steps {
-                echo 'Analyzing code quality with Pylint...'
-                 script {
-            def pylintResult = sh(returnStatus: true, script: "docker run --rm expenseapp python -m pylint app.py")
-            if (pylintResult != 0) {
-                error "Pylint check failed!"
-            }
-
-            }
-        }
+    steps {
+        echo 'Analyzing code quality with Pylint...'
+        sh 'docker run --rm expenseapp python -m pylint app.py'
+    }
+}
 
         stage('Security') {
             steps {
