@@ -28,10 +28,7 @@ pipeline {
 }
 
        stage('Security') {
-    when {
-        always()
-    }
-    steps {
+        steps {
         echo 'Running security analysis...'
         sh 'docker run --rm expenseapp bandit -r app/'
     }
