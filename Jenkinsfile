@@ -51,15 +51,19 @@ stage('Security Scan') {
  stage('Deploy') {
     steps {
         echo '🚀 Tagging and pushing Docker image...'
-        sh 'docker tag expenseapp leela/expenseapp_fixed:latest'
+        sh 'docker tag expenseapp leelawaheed/expenseapp_fixed:latest'
         
-        // Secure Docker login using Jenkins credentials
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-            sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+        withCredentials([usernamePassword(
+            credentialsId: 'docker-hub-creds',
+            usernameVariable: 'DOCKER_USERNAME',
+            passwordVariable: 'DOCKER_PASSWORD'
+        )]) {
+            sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
         }
 
-        sh 'docker push leela/expenseapp_fixed:latest'
+        sh 'docker push leelawaheed/expenseapp_fixed:latest'
     }
 }
+
     }
 }
