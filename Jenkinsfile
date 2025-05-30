@@ -39,10 +39,10 @@ stage('Security Scan') {
         sh '''
             docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
                 pip install bandit &&
-                bandit app --output-format=text | tee pylint-report.txt || true
+                bandit -r app -f txt | tee bandit-report.txt || true
             "
         '''
-       
+        sh 'cat bandit-report.txt' // Displays the report in Jenkins console
     }
 }
 
