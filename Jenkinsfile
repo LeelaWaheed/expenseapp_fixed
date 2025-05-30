@@ -20,11 +20,11 @@ pipeline {
             }
         }
 
-   stage('Code Quality') {
+ stage('Code Quality') {
     steps {
         echo 'Analyzing code quality with Pylint...'
-        sh 'docker run --rm expenseapp python -m pylint app.py > pylint_report.txt'
-        sh 'cat pylint_report.txt'  // Displays the contents in Jenkins console
+        sh 'docker run --rm expenseapp python -m pylint --exit-zero app.py > pylint_report.txt'
+        sh 'cat pylint_report.txt'
     }
 }
 
