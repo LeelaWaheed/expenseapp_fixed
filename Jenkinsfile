@@ -51,18 +51,14 @@ stage('Security Scan') {
  stage('Deploy') {
     steps {
         echo '🚀 Tagging and pushing Docker image...'
-        sh 'docker tag expenseapp leelawaheed/expenseapp_fixed:latest' // Fix repository format
-        sh 'docker push leelawaheed/expenseapp_fixed:latest'
+        sh 'docker tag expenseapp leela/expenseapp_fixed:latest'
+        
+        // Secure Docker login using Jenkins credentials
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+            sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+        }
 
-        echo '🔄 Stopping existing container (if any)...'
-        sh 'docker stop expenseapp || true'
-        sh 'docker rm expenseapp || true'
-
-        echo '🚀 Deploying new container...'
-        sh 'docker run -d --name expenseapp -p 5000:5000 leelawaheed/expenseapp_fixed:latest'
-
-        echo '🔍 Checking container logs for errors...'
-        sh 'docker logs expenseapp'
+        sh 'docker push leela/expenseapp_fixed:latest'
     }
 }
     }
