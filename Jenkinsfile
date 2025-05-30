@@ -16,6 +16,15 @@ stage('Build & Start Services') {
         '''
     }
 }
+stage('Verify Flask is Running') {
+    steps {
+        echo '🔍 Checking Flask app...'
+        sh '''
+            sleep 5  # Allow some time for startup
+            curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/
+        '''
+    }
+}
 
 
 
