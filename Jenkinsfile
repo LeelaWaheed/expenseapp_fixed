@@ -23,7 +23,12 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo 'Analyzing code quality with Pylint...'
-                sh 'pylint --disable=missing-docstring --enable=all $(git ls-files "*.py")'
+                 script {
+            def pylintResult = sh(returnStatus: true, script: "docker run --rm expenseapp python -m pylint app.py")
+            if (pylintResult != 0) {
+                error "Pylint check failed!"
+            }
+
             }
         }
 
