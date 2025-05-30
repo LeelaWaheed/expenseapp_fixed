@@ -27,12 +27,16 @@ pipeline {
     }
 }
 
-        stage('Security') {
-            steps {
-                echo 'Performing security scans with Bandit...'
-                sh 'bandit -r .' // Scans all Python files for vulnerabilities
-            }
-        }
+       stage('Security') {
+    when {
+        always()
+    }
+    steps {
+        echo 'Running security analysis...'
+        sh 'docker run --rm expenseapp bandit -r app/'
+    }
+}
+
 
         stage('Deploy') {
             steps {
