@@ -1,53 +1,54 @@
 pipeline {
     agent any
-    
+
     environment {
-        DOCKER_REPO = 'myrepo/expenseapp'  // Replace with your actual Docker repository
+        DOCKER_REPO = 'myrepo/expenseapp' // Replace with your actual Docker repository
     }
-    
+
     stages {
         stage('Build') {
             steps {
-                echo 'Building application...'
+                echo 'Building Docker image...'
                 sh 'docker build -t expenseapp .'
             }
         }
-        
+
         stage('Test') {
             steps {
-                echo 'Running tests...'
-                sh 'pytest'  // Ensure you have pytest installed
+                echo 'Running tests inside Docker...'
+                sh 'docker run --rm expenseapp pytest' // Runs tests within a clean container
             }
         }
-        
+
         stage('Code Quality') {
             steps {
-                echo 'Analyzing code quality...'
-                sh 'pylint --disable=all --enable=unused-import,wrong-import-position $(git ls-files "*.py")'
+                echo 'Analyzing code quality with Pylint...'
+                sh 'pylint --disable=missing-docstring --enable=all $(git ls-files "*.py")'
             }
         }
-        
+
         stage('Security') {
             steps {
-                echo 'Running security scans...'
-                sh 'bandit -r .'  // Bandit for Python security checks
+                echo 'Performing security scans with Bandit...'
+                sh 'bandit -r .' // Scans all Python files for vulnerabilities
             }
         }
-        
+
         stage('Deploy') {
             steps {
-                echo 'Deploying application...'
-                
-                echo 'Tagging and pushing Docker image...'
+                echo 'Tagging and pushing Docker image to repository...'
                 sh 'docker tag expenseapp $DOCKER_REPO:latest'
-                sh 'docker push $DOCKER_REPO:latest'  // Push to your Docker repository
-                
-                echo 'Stopping old container (if exists)...'
+                sh 'docker push $DOCKER_REPO:latest'
+
+                echo 'Stopping existing container (if any)...'
                 sh 'docker stop expenseapp || true'
                 sh 'docker rm expenseapp || true'
-                
-                echo 'Running new container...'
+
+                echo 'Deploying new container...'
                 sh 'docker run -d --name expenseapp -p 5000:5000 $DOCKER_REPO:latest'
+
+                echo 'Checking container logs for errors...'
+                sh 'docker logs expenseapp'
             }
         }
     }
