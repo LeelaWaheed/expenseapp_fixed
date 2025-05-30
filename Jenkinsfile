@@ -24,7 +24,7 @@ stage('Lint Code') {
             steps {
                 echo '🔍 Running Pylint...'
                 sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app expense-tracker-app sh -c "
+                    docker run --rm -v "$WORKSPACE:/app" -w /app expenseapp sh -c "
                         pip install pylint &&
                         pylint app > pylint-report.txt || true
                     "
