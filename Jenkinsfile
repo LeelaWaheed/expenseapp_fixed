@@ -29,7 +29,7 @@ stage('Lint Code') {
                 pylint app --output-format=text | tee pylint-report.txt || true
             "
         '''
-        sh 'cat pylint-report.txt' // Displays the linting report in Jenkins console
+        
     }
 }
 
@@ -39,10 +39,10 @@ stage('Security Scan') {
         sh '''
             docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
                 pip install bandit &&
-                bandit -r app --severity-level low --confidence-level low -f txt -o bandit-report.txt || true
+                bandit app --output-format=text | tee pylint-report.txt || true
             "
         '''
-        sh 'cat bandit-report.txt' // Displays the report in Jenkins console
+       
     }
 }
 
