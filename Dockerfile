@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir bandit
 
 # Run Flask application
-CMD ["python", "app/app.py"]
+CMD ["python", "/app.py"]
