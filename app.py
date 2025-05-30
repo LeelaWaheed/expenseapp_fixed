@@ -1,3 +1,7 @@
+"""
+This module handles the main application setup and routes, including functions like "create_app".
+"""
+
 from app import create_app
 from app.models import db, User
 from werkzeug.security import generate_password_hash
