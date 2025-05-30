@@ -21,27 +21,28 @@ pipeline {
         }
 
 stage('Lint Code') {
-            steps {
-                echo '🔍 Running Pylint...'
-                sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app expenseapp sh -c "
-                        pip install pylint &&
-                        pylint app > pylint-report.txt || true
-                    "
-                '''
-            }
-        }
+    steps {
+        echo '🔍 Running Pylint...'
+        sh '''
+            docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
+                pip install pylint &&
+                pylint app --output-format=text > pylint-report.txt || true
+            "
+        '''
+        sh 'cat pylint-report.txt' // Displays the linting report in Jenkins console
+    }
+}
 
-
-        stage('Security Scan') {
+stage('Security Scan') {
     steps {
         echo '🔒 Running Bandit...'
         sh '''
-            docker run --rm -v "$WORKSPACE:/app" -w /app expenseapp sh -c "
+            docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
                 pip install bandit &&
-                bandit -r app -f txt || true
+                bandit -r app --severity-level low --confidence-level low -f txt -o bandit-report.txt || true
             "
         '''
+        sh 'cat bandit-report.txt' // Displays the report in Jenkins console
     }
 }
 
