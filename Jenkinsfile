@@ -74,7 +74,7 @@ stage('Security Scan') {
  stage('Deploy') {
     steps {
         echo '🚀 Tagging and pushing Docker image...'
-        sh 'docker tag expenseapp leelawaheed/expenseapp_fixed:latest'
+        sh 'docker tag expenseapp leelawaheed/expenseapp_fixed:1.0'
         
         withCredentials([usernamePassword(
             credentialsId: 'docker-hub-creds',
