@@ -8,15 +8,15 @@ pipeline {
                 checkout scm
             }
         }
-
-        stage('Build & Start Services') {
+stage('Build & Start Services') {
     steps {
         echo '🐳 Building and starting Flask app...'
         sh '''
-            "C:/Program Files/Docker/Docker/resources/bin/docker-compose.exe" up -d --build
+            "/c/Program Files/Docker/Docker/resources/bin/docker-compose.exe" up -d --build
         '''
     }
 }
+
 
 
         stage('Run Tests') {
