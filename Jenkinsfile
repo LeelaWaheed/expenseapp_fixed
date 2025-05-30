@@ -14,11 +14,16 @@ pipeline {
         }
 
         stage('Test') {
-            steps {
-                echo 'Running tests inside Docker...'
-                sh 'docker run --rm expenseapp pytest' // Runs tests within a clean container
-            }
-        }
+    steps {
+        echo 'Running tests inside Docker with coverage...'
+        sh '''
+            docker run --rm \
+              -v $(pwd)/coverage:/app/coverage \
+              expenseapp \
+              sh -c "pytest --cov=app --cov-report=xml:coverage/coverage.xml tests/"
+        '''
+    }
+}
 
 stage('Lint Code') {
     steps {
@@ -65,7 +70,7 @@ stage('Security Scan') {
             }
         }
     }
-/*
+
  stage('Deploy') {
     steps {
         echo '🚀 Tagging and pushing Docker image...'
@@ -79,9 +84,9 @@ stage('Security Scan') {
             sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
         }
 
-        sh 'docker push leelawaheed/expenseapp_fixed:latest'
+        sh 'docker push leelawaheed/expenseapp_fixed:1.1'
     }
-}*/
+}
 
     }
 }
