@@ -9,12 +9,13 @@ pipeline {
             }
         }
 
-
-
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Building Docker image...'
-                sh 'docker build --no-cache -t expense-tracker-app .'
+                echo '🐳 Building and starting Flask app...'
+                sh '''
+                    docker-compose up -d --build
+                '''
+
             }
         }
 
