@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REPO = 'myrepo/expenseapp' // Replace with your actual Docker repository
+        DOCKER_REPO = 'https://github.com/LeelaWaheed/expenseapp_fixed' // Replace with your actual Docker repository
     }
 
     stages {
