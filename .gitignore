@@ -22,7 +22,7 @@ env.bak/
 # ─────────────────────────────
 *.db
 *.sqlite3
-instance/expenses.db
+
 
 # ─────────────────────────────
 # ✅ Test-related ignores
