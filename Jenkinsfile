@@ -34,16 +34,16 @@ stage('Lint Code') {
 
 
         stage('Security Scan') {
-            steps {
-                echo '🔒 Running Bandit...'
-                sh '''
-                    docker run --rm -v "$WORKSPACE:/app" -w /app expenseapp sh -c "
-                        pip install bandit &&
-                        bandit -r app > bandit-report.txt || true
-                    "
-                '''
-            }
-        }
+    steps {
+        echo '🔒 Running Bandit...'
+        sh '''
+            docker run --rm -v "$WORKSPACE:/app" -w /app expenseapp sh -c "
+                pip install bandit &&
+                bandit -r app -f txt || true
+            "
+        '''
+    }
+}
 
 
 
