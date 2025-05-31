@@ -81,7 +81,7 @@ pipeline {
         }
         */
 
-        /*
+        
         stage('Deploy') {
             steps {
                 echo "Tagging and pushing Docker image as ${DOCKER_REPO}:${IMAGE_VERSION}"
@@ -98,6 +98,6 @@ pipeline {
                 sh "docker push ${DOCKER_REPO}:${IMAGE_VERSION}"
             }
         }
-        */
+        
     }
 }
