@@ -46,12 +46,15 @@ pipeline {
         stage('Security Scan') {
     steps {
         echo 'Running Bandit...'
-        sh '''
-        docker run --rm -v "$(pwd):/app" -w /app expenseapp sh -c "
-            pip install bandit &&
-            bandit -r . -f txt | tee bandit-report.txt || true
-        "
-        '''
+       sh '''
+docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
+    echo '✅ Listing /app contents:' &&
+    find . &&
+    pip install bandit &&
+    bandit -r . -f txt | tee bandit-report.txt || true
+"
+'''
+
     }
 }
 
