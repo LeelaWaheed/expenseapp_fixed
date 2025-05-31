@@ -28,20 +28,23 @@ pipeline {
         }
 
         stage('Lint Code') {
-            steps {
-                echo 'Running Pylint...'
-                sh '''
-                    docker run --rm \
-                    -v "$(pwd):/app" \
-                    -w /app \
-                    expenseapp \
-                    sh -c "
-                        pip install pylint &&
-                        pylint app --output-format=text | tee pylint-report.txt || true
-                    "
-                '''
-            }
-        }
+    steps {
+        echo 'Running Pylint...'
+        sh '''
+            docker run --rm \
+            -v /var/jenkins_home/workspace/hdtask:/app \
+            -w /app \
+            expenseapp \
+            sh -c "
+                echo '📁 Listing files:' &&
+                ls -la &&
+                pip install pylint &&
+                pylint $(find . -name '*.py') --output-format=text | tee pylint-report.txt || true
+            "
+        '''
+    }
+}
+
 
         stage('Security Scan') {
     steps {
