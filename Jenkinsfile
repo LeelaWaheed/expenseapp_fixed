@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REPO = 'https://github.com/LeelaWaheed/expenseapp_fixed'
-        IMAGE_VERSION = '1.1' 
+        DOCKER_REPO = 'leelawaheed/expenseapp_fixed'
+        IMAGE_VERSION = '1.1'
     }
 
     stages {
@@ -16,10 +16,10 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Running tests inside Docker with coverage...'
+                echo 'Running tests with coverage...'
                 sh '''
                     docker run --rm \
-                    -v "$(pwd)/coverage:/app/coverage" \
+                    -v expenseapp:/app \
                     -w /app \
                     expenseapp \
                     sh -c "pytest --cov=app --cov-report=xml:coverage/coverage.xml tests/"
@@ -28,48 +28,45 @@ pipeline {
         }
 
         stage('Lint Code') {
-    steps {
-        echo 'Running Pylint...'
-        sh '''
-            docker run --rm \
-            -v /var/jenkins_home/workspace/hdtask:/app \
-            -w /app \
-            expenseapp \
-            sh -c "
-                echo '📁 Listing files:' &&
-                ls -la &&
-                pip install pylint &&
-                pylint $(find . -name '*.py') --output-format=text | tee pylint-report.txt || true
-            "
-        '''
-    }
-}
-
+            steps {
+                echo 'Running Pylint...'
+                sh '''
+                    docker run --rm \
+                    -v expenseapp:/app \
+                    -w /app \
+                    expenseapp \
+                    sh -c "
+                        pip install pylint &&
+                        pylint app --output-format=text | tee pylint-report.txt || true
+                    "
+                '''
+            }
+        }
 
         stage('Security Scan') {
-    steps {
-        echo 'Running Bandit...'
-       sh '''
-docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
-    echo '✅ Listing /app contents:' &&
-    find . &&
-    pip install bandit &&
-    bandit -r . -f txt | tee bandit-report.txt || true
-"
-'''
+            steps {
+                echo 'Running Bandit...'
+                sh '''
+                    docker run --rm \
+                    -v expenseapp:/app \
+                    -w /app \
+                    expenseapp \
+                    sh -c "
+                        pip install bandit &&
+                        bandit -r . -f txt | tee bandit-report.txt || true
+                    "
+                '''
+            }
+        }
 
-    }
-}
-
-
-
-       /*  stage('SonarCloud Analysis') {
+        /*
+        stage('SonarCloud Analysis') {
             steps {
                 echo 'Running SonarCloud Analysis...'
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
                         docker run --rm \
-                        -v "$(pwd)":/usr/src \
+                        -v expenseapp:/usr/src \
                         -w /usr/src \
                         sonarsource/sonar-scanner-cli \
                         sonar-scanner \
@@ -81,14 +78,13 @@ docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
                     '''
                 }
             }
-        } */
+        }
+        */
 
-        // Uncomment this stage if you want to enable deployment
         /*
         stage('Deploy') {
             steps {
                 echo "Tagging and pushing Docker image as ${DOCKER_REPO}:${IMAGE_VERSION}"
-
                 sh "docker tag expenseapp ${DOCKER_REPO}:${IMAGE_VERSION}"
 
                 withCredentials([usernamePassword(
@@ -103,5 +99,5 @@ docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
             }
         }
         */
-    } // <-- closing brace for stages block
-}     // <-- closing brace for pipeline block
+    }
+}
