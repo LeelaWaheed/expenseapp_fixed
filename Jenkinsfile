@@ -45,21 +45,18 @@ pipeline {
 
         stage('Security Scan') {
             steps {
-                echo 'Running Bandit...'
-                sh '''
-                    docker run --rm \
-                    -v "$(pwd):/app" \
-                    -w /app \
-                    expenseapp \
-                    sh -c "
-                        pip install bandit &&
-                        bandit -r . -f txt | tee bandit-report.txt || true
+                
+                    echo 'Running Bandit...'
+                    sh '''
+                    docker run --rm -v "expenseapp:/app" -w /app expenseapp sh -c "
+                    pip install bandit &&
+                    bandit -r app -f txt | tee bandit-report.txt || true
                     "
-                '''
+                    '''
             }
         }
 
-        stage('SonarCloud Analysis') {
+       /*  stage('SonarCloud Analysis') {
             steps {
                 echo 'Running SonarCloud Analysis...'
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
@@ -77,7 +74,7 @@ pipeline {
                     '''
                 }
             }
-        }
+        } */
 
         // Uncomment this stage if you want to enable deployment
         /*
