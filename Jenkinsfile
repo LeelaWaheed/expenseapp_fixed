@@ -73,17 +73,18 @@ pipeline {
                         -Dsonar.organization=leelawaheed \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=https://sonarcloud.io \
-                        -Dsonar.login=${SONAR_TOKEN}
+                        -Dsonar.login=$SONAR_TOKEN
                     '''
                 }
             }
         }
 
-        /* 
+        // Uncomment this stage if you want to enable deployment
+        /*
         stage('Deploy') {
             steps {
                 echo "Tagging and pushing Docker image as ${DOCKER_REPO}:${IMAGE_VERSION}"
-        
+
                 sh "docker tag expenseapp ${DOCKER_REPO}:${IMAGE_VERSION}"
 
                 withCredentials([usernamePassword(
@@ -93,9 +94,10 @@ pipeline {
                 )]) {
                     sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                 }
+
                 sh "docker push ${DOCKER_REPO}:${IMAGE_VERSION}"
             }
         }
-    }
-     */
-}
+        */
+    } // <-- closing brace for stages block
+}     // <-- closing brace for pipeline block
