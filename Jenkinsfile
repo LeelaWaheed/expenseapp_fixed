@@ -45,21 +45,16 @@ pipeline {
 
         stage('Security Scan') {
     steps {
-        echo '🔍 Checking files visible to Bandit...'
+        echo 'Running Bandit...'
         sh '''
-            docker run --rm \
-            -v "$(pwd):/app" \
-            -w /app \
-            expenseapp \
-            sh -c "
-                echo '✅ Inside container. Showing /app contents:' && \
-                ls -al /app && \
-                echo '🔁 Recursively listing:' && \
-                find /app
-            "
+        docker run --rm -v "$(pwd):/app" -w /app expenseapp sh -c "
+            pip install bandit &&
+            bandit -r . -f txt | tee bandit-report.txt || true
+        "
         '''
     }
 }
+
 
 
        /*  stage('SonarCloud Analysis') {
