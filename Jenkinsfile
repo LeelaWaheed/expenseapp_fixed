@@ -53,7 +53,7 @@ pipeline {
                     expenseapp \
                     sh -c "
                         pip install bandit &&
-                        bandit -r app -f txt | tee bandit-report.txt || true
+                        bandit -r . -f txt | tee bandit-report.txt || true
                     "
                 '''
             }
