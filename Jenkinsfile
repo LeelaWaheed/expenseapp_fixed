@@ -63,7 +63,7 @@ pipeline {
             steps {
                 echo 'Running SonarCloud Analysis...'
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh """
+                    sh '''
                         docker run --rm \
                         -v "$(pwd)":/usr/src \
                         -w /usr/src \
@@ -74,7 +74,7 @@ pipeline {
                         -Dsonar.sources=. \
                         -Dsonar.host.url=https://sonarcloud.io \
                         -Dsonar.login=${SONAR_TOKEN}
-                    """
+                    '''
                 }
             }
         }
