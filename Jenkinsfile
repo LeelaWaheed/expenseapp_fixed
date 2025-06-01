@@ -60,9 +60,10 @@ pipeline {
         }
         
         stage('SonarCloud Analysis') {
-            steps {
-                echo 'Running SonarCloud Analysis...'
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+        steps {
+            echo 'Running SonarCloud Analysis...'
+
+             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
             sh '''
                 docker run --rm \
                 -v $WORKSPACE:/usr/src \
@@ -75,10 +76,10 @@ pipeline {
                 -Dsonar.host.url=https://sonarcloud.io \
                 -Dsonar.login=$SONAR_TOKEN
             '''
-                }   
             }
         }
-              
+    }
+
         stage('Deploy') {
             steps {
                 echo "Tagging and pushing Docker image as ${DOCKER_REPO}:${IMAGE_VERSION}"
