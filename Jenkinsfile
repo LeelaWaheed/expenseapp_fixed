@@ -63,20 +63,19 @@ pipeline {
             steps {
                 echo 'Running SonarCloud Analysis...'
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                     sh '''
-                    docker run --rm \
-                      -v "$(pwd)":/usr/src \
-                      -w /usr/src \
-                      sonarsource/sonar-scanner-cli \
-                      sonar-scanner \
-                      -Dsonar.projectKey=expenseapp_fixed \
-                      -Dsonar.organization=leelawaheed \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=https://sonarcloud.io \
-                      -Dsonar.login=$SONAR_TOKEN
-                '''
-
-                }
+            sh '''
+                docker run --rm \
+                -v $WORKSPACE:/usr/src \
+                -w /usr/src \
+                sonarsource/sonar-scanner-cli \
+                sonar-scanner \
+                -Dsonar.projectKey=expenseapp_fixed \
+                -Dsonar.organization=leelawaheed \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=https://sonarcloud.io \
+                -Dsonar.login=$SONAR_TOKEN
+            '''
+                }   
             }
         }
               
